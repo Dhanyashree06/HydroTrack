@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#eaf7fb">
+    <title>HydroTrack | Daily Water Intake</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="/" aria-label="HydroTrack home">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 40 48" role="img">
+                        <path d="M20 2C15 11 5 22 5 31a15 15 0 0 0 30 0C35 22 25 11 20 2Z" fill="currentColor"/>
+                        <path d="M13 32c.5 4 3.1 6.5 7 7" fill="none" stroke="white" stroke-linecap="round" stroke-width="2.5"/>
+                    </svg>
+                </span>
+                <span>HydroTrack</span>
+            </a>
+            <p class="topbar-note">A little better, sip by sip.</p>
+        </header>
+
+        <section class="dashboard" aria-labelledby="welcome-title">
+            <div class="welcome-row">
+                <div>
+                    <p class="eyebrow">YOUR DAILY CHECK-IN</p>
+                    <h1 id="welcome-title">Stay Hydrated,<br><span>Stay Healthy</span></h1>
+                </div>
+                <div class="date-chip" aria-label="Today's hydration">
+                    <span class="date-dot" aria-hidden="true"></span>
+                    <span>Today</span>
+                </div>
+            </div>
+
+            <section class="overview" aria-label="Today's hydration overview">
+                <div class="goal-panel">
+                    <div class="goal-heading">
+                        <div>
+                            <p class="label">TODAY'S GOAL</p>
+                            <p class="goal-value"><span id="goal-value">2000</span><span class="unit">ml</span></p>
+                        </div>
+                        <span class="goal-icon" aria-hidden="true">
+                            <svg viewBox="0 0 40 48">
+                                <path d="M20 2C15 11 5 22 5 31a15 15 0 0 0 30 0C35 22 25 11 20 2Z" fill="currentColor"/>
+                                <path d="M13 32c.5 4 3.1 6.5 7 7" fill="none" stroke="white" stroke-linecap="round" stroke-width="2.5"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <form id="goal-form" class="goal-form">
+                        <label class="visually-hidden" for="goal-input">Custom daily goal in milliliters</label>
+                        <input id="goal-input" type="number" min="1" step="1" inputmode="numeric" placeholder="Set a custom goal" required>
+                        <button type="submit" class="goal-submit" aria-label="Save daily goal" title="Save goal">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="stats-panel">
+                    <div class="stat-block">
+                        <p class="label">CONSUMED</p>
+                        <p class="stat-value"><span id="consumed-value">0</span><span class="unit">ml</span></p>
+                    </div>
+                    <div class="stat-divider" aria-hidden="true"></div>
+                    <div class="stat-block remaining-block">
+                        <p class="label">REMAINING</p>
+                        <p class="stat-value"><span id="remaining-value">2000</span><span class="unit">ml</span></p>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-copy">
+                            <span class="label">DAILY PROGRESS</span>
+                            <span id="progress-value" class="progress-number">0%</span>
+                        </div>
+                        <div class="progress-track" role="progressbar" aria-label="Daily water goal progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div id="progress-fill" class="progress-fill"></div>
+                        </div>
+                        <p id="progress-message" class="progress-message" aria-live="polite">Let's get started!</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="add-section" aria-labelledby="add-title">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">BUILD YOUR MOMENTUM</p>
+                        <h2 id="add-title">Add a glass</h2>
+                    </div>
+                    <span class="section-hint">Choose an amount to log</span>
+                </div>
+                <div class="water-buttons" aria-label="Add water">
+                    <button type="button" class="water-button" data-amount="250"><span class="button-drop" aria-hidden="true">+</span><span>250 <small>ml</small></span></button>
+                    <button type="button" class="water-button" data-amount="500"><span class="button-drop" aria-hidden="true">+</span><span>500 <small>ml</small></span></button>
+                    <button type="button" class="water-button" data-amount="750"><span class="button-drop" aria-hidden="true">+</span><span>750 <small>ml</small></span></button>
+                    <button type="button" class="water-button" data-amount="1000"><span class="button-drop" aria-hidden="true">+</span><span>1000 <small>ml</small></span></button>
+                </div>
+                <div class="footer-row">
+                    <p class="footer-note"><span aria-hidden="true">✦</span> Every sip counts toward feeling your best.</p>
+                    <button type="button" id="reset-button" class="reset-button">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8m0-5v5h5"/></svg>
+                        Reset today
+                    </button>
+                </div>
+                <p id="status-message" class="status-message" role="status" aria-live="polite"></p>
+            </section>
+
+            <section class="insights-grid" aria-label="Hydration insights">
+                <section class="insight-panel weekly-panel" aria-labelledby="weekly-title">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">YOUR LAST 7 DAYS</p>
+                            <h2 id="weekly-title">Weekly statistics</h2>
+                        </div>
+                        <span class="weekly-total"><span id="weekly-total">0</span><small>ml total</small></span>
+                    </div>
+                    <div id="weekly-chart" class="weekly-chart" aria-label="Water intake by day for the last seven days"></div>
+                    <p class="weekly-average">Daily average <strong><span id="weekly-average">0</span> ml</strong></p>
+                </section>
+
+                <section class="insight-panel streak-panel" aria-labelledby="streak-title">
+                    <p class="eyebrow">KEEP THE FLOW GOING</p>
+                    <h2 id="streak-title">Your streak</h2>
+                    <div class="streak-count"><span id="streak-count">0</span><small>days</small></div>
+                    <p class="streak-caption">Consecutive days with water logged</p>
+                    <div class="streak-rule" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                </section>
+            </section>
+
+            <section class="detail-grid" aria-label="Hydration history and achievements">
+                <section class="insight-panel timeline-panel" aria-labelledby="timeline-title">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">LAST 7 DAYS</p>
+                            <h2 id="timeline-title">Intake timeline</h2>
+                        </div>
+                        <span class="timeline-date">Recent drinks</span>
+                    </div>
+                    <ol id="history-list" class="history-list"></ol>
+                    <p id="history-empty" class="empty-state">Your drinks will appear here as you log them.</p>
+                </section>
+
+                <section class="insight-panel achievements-panel" aria-labelledby="achievements-title">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">SMALL WINS ADD UP</p>
+                            <h2 id="achievements-title">Achievements</h2>
+                        </div>
+                    </div>
+                    <div id="achievements-list" class="achievements-list"></div>
+                </section>
+            </section>
+
+            <section class="reminder-panel" aria-labelledby="reminder-title">
+                <div class="reminder-copy">
+                    <p class="eyebrow">A GENTLE NUDGE</p>
+                    <h2 id="reminder-title">Hydration reminder</h2>
+                    <p id="reminder-message" class="reminder-message" role="status" aria-live="polite">Reminders are off.</p>
+                </div>
+                <div class="reminder-controls">
+                    <label for="reminder-interval">Every</label>
+                    <select id="reminder-interval" aria-label="Reminder interval">
+                        <option value="30">30 min</option>
+                        <option value="60" selected>60 min</option>
+                        <option value="90">90 min</option>
+                    </select>
+                    <button type="button" id="reminder-toggle" class="reminder-toggle" aria-pressed="false">Turn on</button>
+                </div>
+            </section>
+        </section>
+        <footer class="page-footer">HYDROTRACK <span aria-hidden="true">·</span> YOUR DAILY WELLNESS COMPANION</footer>
+    </main>
+</body>
+</html>
