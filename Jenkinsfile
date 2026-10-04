@@ -1,7 +1,17 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        IMAGE_NAME = "hydrotrack"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -10,37 +20,47 @@ pipeline {
 
         stage('Build Docker image') {
             steps {
-                script {
-                    def image = "hydrotrack:${env.BUILD_NUMBER}"
-                    if (isUnix()) {
-                        sh "docker build -t ${image} ."
-                    } else {
-                        bat "docker build -t ${image} ."
-                    }
-                }
+                bat 'docker build -t %IMAGE_NAME%:%IMAGE_TAG% .'
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Verify Docker image') {
             steps {
-                withCredentials([file(credentialsId: 'hydrotrack-kubeconfig', variable: 'KUBECONFIG')]) {
-                    script {
-                        def image = "hydrotrack:${env.BUILD_NUMBER}"
-                        if (isUnix()) {
-                            sh "docker save ${image} | docker exec -i desktop-control-plane ctr -n k8s.io images import -"
-                            sh 'kubectl config use-context docker-desktop'
-                            sh 'kubectl apply -f kubernetes/'
-                            sh "kubectl set image deployment/hydrotrack hydrotrack=${image}"
-                            sh 'kubectl rollout status deployment/hydrotrack --timeout=120s'
-                        } else {
-                            bat "docker save ${image} | docker exec -i desktop-control-plane ctr -n k8s.io images import -"
-                            bat 'kubectl config use-context docker-desktop'
-                            bat 'kubectl apply -f kubernetes/'
-                            bat "kubectl set image deployment/hydrotrack hydrotrack=${image}"
-                            bat 'kubectl rollout status deployment/hydrotrack --timeout=120s'
-                        }
-                    }
-                }
+                bat 'docker images hydrotrack'
+            }
+        }
+
+        stage('Verify Kubernetes access') {
+            steps {
+                bat 'kubectl get nodes'
+                bat 'kubectl get deployment hydrotrack'
+            }
+        }
+
+        stage('Apply Kubernetes manifests') {
+            steps {
+                bat 'kubectl apply -f kubernetes/deployment.yaml'
+                bat 'kubectl apply -f kubernetes/service.yaml'
+            }
+        }
+
+        stage('Update HydroTrack image') {
+            steps {
+                bat 'kubectl set image deployment/hydrotrack hydrotrack=hydrotrack:%IMAGE_TAG%'
+            }
+        }
+
+        stage('Wait for rollout') {
+            steps {
+                bat 'kubectl rollout status deployment/hydrotrack --timeout=120s'
+            }
+        }
+
+        stage('Verify deployment') {
+            steps {
+                bat 'kubectl get pods'
+                bat 'kubectl get deployment hydrotrack'
+                bat 'kubectl get service hydrotrack-service'
             }
         }
     }
