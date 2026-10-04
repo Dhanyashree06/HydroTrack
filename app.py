@@ -1,7 +1,12 @@
 import os
 from datetime import date, datetime, timedelta
 
-from flask import Flask, jsonify, render_template, request
+try:
+    from flask import Flask, jsonify, render_template, request  # type: ignore[import-not-found]
+except ImportError as exc:
+    raise RuntimeError(
+        "Flask is required to run this app. Install dependencies with 'pip install flask'."
+    ) from exc
 
 app = Flask(__name__)
 

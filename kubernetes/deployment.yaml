@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hydrotrack
+  labels:
+    app: hydrotrack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hydrotrack
+  template:
+    metadata:
+      labels:
+        app: hydrotrack
+    spec:
+      containers:
+        - name: hydrotrack
+          image: hydrotrack:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              protocol: TCP
